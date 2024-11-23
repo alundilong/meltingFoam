@@ -1,0 +1,3 @@
+gallium_testCase/[0-9]*
+meltingFoam/Make/linux64GccDPInt32-spack/
+gallium_testCase/postProcessing/fieldMinMax1/0/fieldMinMax_1.dat
