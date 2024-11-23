@@ -51,6 +51,7 @@ Description
 #include "noRadiation.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
+#include "CSVReader.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

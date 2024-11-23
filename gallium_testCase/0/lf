@@ -20,6 +20,14 @@ internalField   uniform 0;
 
 boundaryField
 {
+    back
+    {
+        type            zeroGradient;
+    }
+    front
+    {
+        type            zeroGradient;
+    }
     floor
     {
         type            zeroGradient;

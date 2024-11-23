@@ -1,3 +1,14 @@
 gallium_testCase/[0-9]*
 meltingFoam/Make/linux64GccDPInt32-spack/
 gallium_testCase/postProcessing/fieldMinMax1/0/fieldMinMax_1.dat
+
+gallium_testCase/postProcessing/
+gallium_testCase/processor[0-9]*
+
+gallium_testCase/result*.out
+
+gallium_testCase/constant/polyMesh/
+
+gallium_testCase/porous_media.txt
+gallium_testCase/submit.sh
+gallium_testCase/system/decomposeParDict

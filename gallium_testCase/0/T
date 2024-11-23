@@ -39,6 +39,15 @@ boundaryField
         type            fixedValue;
         value           uniform 301.45;
     }
+
+    back
+    {
+        type            zeroGradient;
+    }
+    front
+    {
+        type            zeroGradient;
+    }
     #includeEtc "caseDicts/setConstraintTypes"
 }
 

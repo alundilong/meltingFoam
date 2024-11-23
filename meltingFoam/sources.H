@@ -14,6 +14,6 @@ DH = DHnew;
 
     };
 
- lf = DH/L;
+ lf = pos(mask)*DH/L + pos(1-mask)*lf;
 
 

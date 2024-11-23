@@ -20,6 +20,12 @@ internalField   uniform 0;
 
 boundaryField
 {
+    "front|back"
+    {
+        type            fixedFluxPressure;
+        rho             rhok;
+        value           $internalField;
+    }
     floor
     {
         type            fixedFluxPressure;

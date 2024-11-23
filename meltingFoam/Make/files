@@ -1,3 +1,4 @@
 meltingFoam.C
+CSVReader.C
 
 EXE = $(FOAM_USER_APPBIN)/meltingFoam
