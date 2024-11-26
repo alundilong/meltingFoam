@@ -112,40 +112,32 @@ int main(int argc, char *argv[])
         }
 
 		//Inside the time loop
-	    	scalar t = runTime.value();
-		dimensionedScalar tlf = sum(mesh.V()*lf)/sum(mesh.V());
-		tlfValues.insert(t, tlf.value());
-
+	    scalar t = runTime.value();
+		scalar tlf = lf.weightedAverage(mesh.V()).value();
+		tlfValues.insert(t, tlf);
 
         runTime.write();
 
  		Info<< nl << endl;
-
-		Info<< "Liquid fraction [-] = " << lf.weightedAverage(mesh.V()).value()<< endl;
-
-       		Info<< nl << endl;
-
-        	Info<< "Total Liquid Fraction = " << tlf.value() << endl;
-
-        	Info<< nl << endl;
-
-        	Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s";
-
+		Info<< "Liquid fraction [-] = " << tlf << endl;
+       	Info<< nl << endl;
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s";
 		Info<< nl << endl;
-
-        	Info<< "  ClockTime = " << runTime.elapsedClockTime() << " s";
-            
+        Info<< "  ClockTime = " << runTime.elapsedClockTime() << " s";
 		Info<< nl << endl;
     }
-	// Outside the time loop, save the hash table to a file
-	OFstream myfile("./tlfvalues");
-	myfile() << "time\t" << "tlf" << endl;
+    if (Pstream::master())
+    {
+	    // Outside the time loop, save the hash table to a file
+	    OFstream myfile("./tlfvalues");
+	    myfile() << "time\t" << "tlf" << endl;
 
-	//write the tlfValues to the file sorted by time
-	for (scalar ti : tlfValues.sortedToc())
-	{
-		myfile() << ti << "\t" << tlfValues[ti] << endl;
-	}
+	    //write the tlfValues to the file sorted by time
+	    for (scalar ti : tlfValues.sortedToc())
+	    {
+	    	myfile() << ti << "\t" << tlfValues[ti] << endl;
+	    }
+    }
 
     Info<< "End\n" << endl;
 

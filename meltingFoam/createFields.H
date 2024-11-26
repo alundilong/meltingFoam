@@ -164,29 +164,54 @@ volScalarField mask
         "mask",
         runTime.timeName(),
         mesh,
-        IOobject::NO_READ,
+        IOobject::MUST_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh,
-    dimensionedScalar("mask_zero",dimless,scalar(0.0)),
-    zeroGradientFvPatchScalarField::typeName
+    mesh
 );
 
-CSVReader csvReader(fileName(materialProperties.lookup("PorousFile")));
-scalar coordinateScaler(readScalar(materialProperties.lookup("coordinateScaler")));
-csvReader.loadCSV();
-const std::vector<CSVReader::DataRow> &dataRows = csvReader.getData();
-for (const auto& row : dataRows)
 {
-    const scalar &x = row.point0;
-    const scalar &y = row.point1;
-    const scalar &z = row.point2;
-    //Info << x << tab << y << tab << z << nl;
-    label celli = mesh.findCell(point(x*coordinateScaler,y*coordinateScaler,z*coordinateScaler));
-    if (celli != -1)
+    CSVReader csvReader(fileName(materialProperties.lookup("PCMFile")));
+    scalar coordinateScaler(readScalar(materialProperties.lookup("coordinateScaler")));
+    csvReader.loadCSV();
+    const std::vector<CSVReader::DataRow> &dataRows = csvReader.getData();
+    for (const auto& row : dataRows)
     {
-        mask.primitiveFieldRef()[celli] = scalar(1.0);
+        const scalar &x = row.point0;
+        const scalar &y = row.point1;
+        const scalar &z = row.point2;
+        //Info << x << tab << y << tab << z << nl;
+        label celli = mesh.findCell(point(x*coordinateScaler,y*coordinateScaler,z*coordinateScaler));
+        if (celli != -1)
+        {
+            mask.primitiveFieldRef()[celli] = scalar(1.0);
+        }
+    }
+    mask.correctBoundaryConditions();
+    //mask.write();
+}
+
+DynamicList<label> cellSet;
+DynamicList<scalar> cellSetTemp;
+
+{
+    // cells that has fixedvalue as pipeflow (constant temperature)
+    CSVReader csvReader(fileName(materialProperties.lookup("PipeFlowFile")));
+    scalar coordinateScaler(readScalar(materialProperties.lookup("coordinateScaler")));
+    scalar Tflow(readScalar(materialProperties.lookup("Tflow")));
+    csvReader.loadCSV();
+    const std::vector<CSVReader::DataRow> &dataRows = csvReader.getData();
+    for (const auto& row : dataRows)
+    {
+        const scalar &x = row.point0;
+        const scalar &y = row.point1;
+        const scalar &z = row.point2;
+        //Info << x << tab << y << tab << z << nl;
+        label celli = mesh.findCell(point(x*coordinateScaler,y*coordinateScaler,z*coordinateScaler));
+        if (celli != -1)
+        {
+            cellSet.append(celli);
+            cellSetTemp.append(Tflow);
+        }
     }
 }
-mask.correctBoundaryConditions();
-mask.write();

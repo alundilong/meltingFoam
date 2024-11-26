@@ -23,6 +23,8 @@ for (int i=0; i<10; i++)
 
     fvOptions.constrain(TEqn);
 
+    TEqn.setValues(cellSet, cellSetTemp);
+
     TEqn.solve();
 
     radiation->correct();

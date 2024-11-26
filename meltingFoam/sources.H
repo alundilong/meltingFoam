@@ -1,19 +1,7 @@
 DH = DHnew;
 
- forAll(mesh.cells(),celli)
-    {
+DH.max(0);
+DH.min(L);
 
-       if (DH[celli] > L.value())
-          {
-             DH[celli] = L.value();
-          }
-       if (DH[celli] < 0)
-          {
-             DH[celli] = 0;
-          }
-
-    };
-
- lf = pos(mask)*DH/L + pos(1-mask)*lf;
-
-
+lf = pos(mask)*DH/L + pos(1-mask)*lf;
+lf.correctBoundaryConditions();
