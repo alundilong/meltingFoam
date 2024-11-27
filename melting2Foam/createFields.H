@@ -102,11 +102,11 @@ volScalarField DH
         "DH",
         runTime.timeName(),
         mesh,
-        IOobject::NO_READ,
+        IOobject::MUST_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh,
-    dimensionedScalar("DH", dimLength*dimLength/(dimTime*dimTime), 0)
+    mesh/*,
+    dimensionedScalar("DH", dimLength*dimLength/(dimTime*dimTime), 0)*/
 );
 DH.oldTime();
 
