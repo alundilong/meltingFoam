@@ -3,7 +3,7 @@ for (int i=0; i<10; i++)
     alphat = turbulence->nut()/Prt;
     alphat.correctBoundaryConditions();
 
-    volScalarField alphaEff("alphaEff", turbulence->nu()/Pr + alphat);
+    volScalarField alphaEff("alphaEff", pos(mask)*(turbulence->nu()/Pr + alphat) + pos(1.0-mask)*alphapore);
 
     #include "sources.H"
 
@@ -14,8 +14,8 @@ for (int i=0; i<10; i++)
       - fvm::laplacian(alphaEff, T)
      ==
         radiation->ST(rhoCpRef, T)
-      - fvc::ddt(DH)/Cp
-      - fvc::div(phi, DH)/Cp
+      - fvc::ddt(DH)/Cp*pos(mask)
+      - fvc::div(phi, DH)/Cp*pos(mask)
       + fvOptions(T)
     );
 

@@ -36,9 +36,19 @@ dimensionedScalar rhoRef
     materialProperties.lookup("rhoRef")
 );
 
+dimensionedScalar rhopore
+(
+    materialProperties.lookup("rhopore")
+);
+
 dimensionedScalar k
 (
     materialProperties.lookup("k")
+);
+
+dimensionedScalar kpore
+(
+    materialProperties.lookup("kpore")
 );
 
 dimensionedScalar mu
@@ -50,6 +60,13 @@ dimensionedScalar Cp
 (
     materialProperties.lookup("Cp")
 );
+
+dimensionedScalar Cppore
+(
+    materialProperties.lookup("Cppore")
+);
+
+dimensionedScalar alphapore = kpore/rhopore/Cppore;
 
 dimensionedScalar q
 (
