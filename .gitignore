@@ -4,6 +4,7 @@ gallium_testCase/postProcessing/fieldMinMax1/0/fieldMinMax_1.dat
 
 gallium_testCase/postProcessing/
 gallium_testCase/processor[0-9]*
+gallium_testCase/constant/polyMesh
 
 gallium_testCase/result*.out
 
@@ -12,3 +13,37 @@ gallium_testCase/constant/polyMesh/
 gallium_testCase/porous_media.txt
 gallium_testCase/submit.sh
 gallium_testCase/system/decomposeParDict
+
+melting2Foam/Make/linux64GccDPInt32-spack/
+
+pipe_porous/processor[0-9]*
+pipe_porous/[1-9]*
+pipe_porous/*.out 
+pipe_porous/*.sh 
+pipe_porous/*.csv 
+pipe_porous/constant/polyMesh/
+pipe_porous/postProcessing/
+
+pipe_porous_solidification
+pipe_porous_solidification/processor[0-9]*
+pipe_porous_solidification/[1-9]*
+pipe_porous_solidification/*.out 
+pipe_porous_solidification/*.sh 
+pipe_porous_solidification/*.csv 
+pipe_porous_solidification/constant/polyMesh/
+pipe_porous_solidification/postProcessing/
+
+gallium_test2Case/
+gallium_test3Case/
+
+tlfvalues
+
+gallium_2D/processor[0-9]*
+gallium_2D/[1-9]*
+gallium_2D/*.out 
+gallium_2D/*.sh 
+gallium_2D/*.csv 
+gallium_2D/constant/polyMesh/
+gallium_2D/postProcessing/
+gallium_2D/system/streamlines
+gallium_2D/system/residuals
