@@ -47,3 +47,8 @@ gallium_2D/constant/polyMesh/
 gallium_2D/postProcessing/
 gallium_2D/system/streamlines
 gallium_2D/system/residuals
+
+
+*.csv
+
+lhtesFoam/Make/linux64GccDPInt32-spack/
