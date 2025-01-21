@@ -9,14 +9,11 @@
     (
         "phiHbyA",
         fvc::flux(HbyA)
-      + MRF.zeroFilter(rAUf*fvc::ddtCorr(U, phi))
       + phig
     );
 
-    MRF.makeRelative(phiHbyA);
-
     // Update the pressure BCs to ensure flux consistency
-    constrainPressure(p_rgh, U, phiHbyA, rAUf, MRF);
+    constrainPressure(p_rgh, U, phiHbyA, rAUf);
 
     while (pimple.correctNonOrthogonal())
     {
@@ -34,6 +31,7 @@
         {
             // Calculate the conservative fluxes
             phi = phiHbyA - p_rghEqn.flux();
+            rhoPhi = fvc::interpolate(rho)*phi;
 
             // Explicitly relax pressure for momentum corrector
             p_rgh.relax();
@@ -42,7 +40,6 @@
             // calculated from the relaxed pressure
             U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
             U.correctBoundaryConditions();
-            fvOptions.correct(U);
         }
     }
 

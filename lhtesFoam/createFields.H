@@ -1,3 +1,70 @@
+Info<< "Reading porous structure\n" << endl;
+
+volScalarField lf
+(
+    IOobject
+    (
+        "lf",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+// mask field for phase change zone (1 for cell meltable, 0 non meltable)
+volScalarField mask
+(
+    IOobject
+    (
+        "mask",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("zero",dimless,scalar(0.0))
+);
+
+Info<< "Reading field U\n" << endl;
+volVectorField U
+(
+    IOobject
+    (
+        "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+#include "createPhi.H"
+
+#include "readTransportProperties.H"
+
+CSVReader csvReader(fileName(materialProperties.lookup("PorousFile")));
+scalar coordinateScaler(readScalar(materialProperties.lookup("coordinateScaler")));
+csvReader.loadCSV();
+const std::vector<CSVReader::DataRow> &dataRows = csvReader.getData();
+for (const auto& row : dataRows)
+{
+    const scalar &x = row.point0;
+    const scalar &y = row.point1;
+    const scalar &z = row.point2;
+    //Info << x << tab << y << tab << z << nl;
+    label celli = mesh.findCell(point(x*coordinateScaler,y*coordinateScaler,z*coordinateScaler));
+    if (celli != -1)
+    {
+        mask.primitiveFieldRef()[celli] = scalar(1.0);
+    }
+}
+mask.correctBoundaryConditions();
+mask.write();
+
 Info<< "Reading thermophysical properties\n" << endl;
 
 Info<< "Reading field T\n" << endl;
@@ -28,23 +95,57 @@ volScalarField p_rgh
     mesh
 );
 
-Info<< "Reading field U\n" << endl;
-volVectorField U
+volScalarField rho
 (
     IOobject
     (
-        "U",
+        "rho",
         runTime.timeName(),
         mesh,
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh
+    mask*(lf*rhoL+(1-lf)*rhoS)+(1-mask)*rhoPore
 );
 
-#include "createPhi.H"
+volScalarField cp
+(
+    IOobject
+    (
+        "cp",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mask*(lf*cpL+(1-lf)*cpS)+(1-mask)*cpPore
+);
 
-#include "readTransportProperties.H"
+volScalarField k
+(
+    IOobject
+    (
+        "k",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mask*(lf*kL+(1-lf)*kS)+(1-mask)*kPore
+);
+
+surfaceScalarField rhoPhi
+(
+    IOobject
+    (
+        "rhoPhi",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    fvc::interpolate(rho)*phi
+);
 
 Info<< "Creating turbulence model\n" << endl;
 autoPtr<incompressible::turbulenceModel> turbulence
@@ -61,10 +162,10 @@ volScalarField rhok
         runTime.timeName(),
         mesh
     ),
-    1.0 - beta*(T - TRef)
+    (1.0 - beta*(T - TRef))*rhoL
 );
 
-volScalarField h = Cp*T;
+volScalarField h = rho*cp*T;
 
 // kinematic turbulent thermal thermal conductivity m2/s
 Info<< "Reading field alphat\n" << endl;
@@ -81,19 +182,6 @@ volScalarField alphat
     mesh
 );
 
-
-volScalarField lf
-(
-    IOobject
-    (
-        "lf",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
 
 volScalarField DH 
 (
@@ -152,39 +240,3 @@ if (p_rgh.needReference())
 
 mesh.setFluxRequired(p_rgh.name());
 
-#include "createMRF.H"
-#include "createIncompressibleRadiationModel.H"
-#include "createFvOptions.H"
-
-// mask field for phase change zone (1 for cell meltable, 0 non meltable)
-volScalarField mask
-(
-    IOobject
-    (
-        "mask",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-CSVReader csvReader(fileName(materialProperties.lookup("PorousFile")));
-scalar coordinateScaler(readScalar(materialProperties.lookup("coordinateScaler")));
-csvReader.loadCSV();
-const std::vector<CSVReader::DataRow> &dataRows = csvReader.getData();
-for (const auto& row : dataRows)
-{
-    const scalar &x = row.point0;
-    const scalar &y = row.point1;
-    const scalar &z = row.point2;
-    //Info << x << tab << y << tab << z << nl;
-    label celli = mesh.findCell(point(x*coordinateScaler,y*coordinateScaler,z*coordinateScaler));
-    if (celli != -1)
-    {
-        mask.primitiveFieldRef()[celli] = scalar(1.0);
-    }
-}
-mask.correctBoundaryConditions();
-//mask.write();

@@ -1,24 +1,21 @@
     // Solve the momentum equation
 
-    dimensionedScalar Pr = (mu*Cp)/k;
-
-    dimensionedScalar nu = mu/rhoRef;
-
-    MRF.correctBoundaryVelocity(U);
+    //- for stablization purpose
+    volScalarField divRhoPhi
+    (
+        "divRhoPhi",
+        fvc::div(phi)*rho
+    );
 
     fvVectorMatrix UEqn
     (
-        fvm::ddt(U) + fvm::div(phi, U)
-      + fvm::Sp(C*pow(1-lf, 2)/(rhoRef*(pow(lf, 3)+q)), U) //added
-      + MRF.DDt(U)
-      + turbulence->divDevReff(U)
-     ==
-        fvOptions(U)
+        fvm::ddt(rho,U) + fvm::div(rhoPhi, U)
+      + fvm::Sp(rho*C*pow(1-lf, 2)/(rhoRef*(pow(lf, 3)+q)), U) //added
+      + turbulence->divDevRhoReff(rho,U)
+      + fvm::SuSp(divRhoPhi, U) + divRhoPhi*U
     );
 
     UEqn.relax();
-
-    fvOptions.constrain(UEqn);
 
     if (pimple.momentumPredictor())
     {
@@ -35,5 +32,4 @@
             )
         );
 
-        fvOptions.correct(U);
     }

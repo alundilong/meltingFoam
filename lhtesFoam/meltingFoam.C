@@ -112,7 +112,9 @@ int main(int argc, char *argv[])
 
 		//Inside the time loop
 	    scalar t = runTime.value();
-		scalar tlf = lf.weightedAverage(mesh.V()).value();
+		scalar tlf1 = lf.weightedAverage(mesh.V()).value();
+		scalar tlf2 = mask.weightedAverage(mesh.V()).value();
+        scalar tlf = tlf1/tlf2;
 		tlfValues.insert(t, tlf);
 
         runTime.write();
