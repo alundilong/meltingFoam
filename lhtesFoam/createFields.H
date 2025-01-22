@@ -240,3 +240,17 @@ if (p_rgh.needReference())
 
 mesh.setFluxRequired(p_rgh.name());
 
+Info << "Writing mesh info" << endl;
+// writeout mesh info
+// C, magSf, weights, deltaCoeffs
+// S, Cf, delta
+mesh.C().write();
+mesh.magSf().write();
+mesh.weights().write();
+mesh.deltaCoeffs().write();
+mesh.Sf().write();
+mesh.Cf().write();
+mesh.delta().ref().write();
+
+volVectorField U0("U0",U);
+U0.write();
