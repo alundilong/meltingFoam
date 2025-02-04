@@ -16,6 +16,6 @@ DH.min(L);
 //   }
 //};
 
-lf = pos(mask)*DH/L + pos(1-mask)*lf;
+lf = mask*DH/L + (1-mask)*lf;
 //lf = DH/L;
 

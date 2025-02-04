@@ -1,4 +1,4 @@
-for (int i=0; i<10; i++)
+for (label i = 0; i < TIter; i++)
 {
     #include "sources.H"
 
@@ -23,11 +23,13 @@ for (int i=0; i<10; i++)
 
     TEqn.solve();
 
-    rhok = (1.0 - beta*(T - TRef))*rhoL;
+    Info << "TIter = " << i <<" max T = " << gMax(T) << tab << "min T = " << gMin(T) << nl;
+
+    rhok = mask*(1.0 - beta*(T - TRef))*rhoL + (1-mask)*rhoS;
 
     volScalarField h = cp*T;
 
     volScalarField Tstar = (Tl - Ts)*lf + Ts;
 
-    DHnew = DH + glRelax*(h - (cp*Tstar));
+    DHnew = mask*(DH + glRelax*(h - (cp*Tstar)));
 }

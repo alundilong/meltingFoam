@@ -121,3 +121,4 @@ dimensionedScalar glRelax
     materialProperties.lookup("glRelax")
 );
 
+label TIter(materialProperties.lookupOrDefault("TIter",10));
