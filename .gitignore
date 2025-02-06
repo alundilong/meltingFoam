@@ -52,3 +52,7 @@ gallium_2D/system/residuals
 *.csv
 
 lhtesFoam/Make/linux64GccDPInt32-spack/
+
+erfConvectiveMeltingPimpleFoam/erfConvectiveMeltingPimpleFoam/Make/linux64GccDPInt32-spack/
+galliumErfMelting/galliumErfMelting/[1-9]*
+galliumErfMelting/galliumErfMelting/constant/polyMesh
