@@ -3,13 +3,13 @@
     (
         fvm::ddt(cp, T)
       + fvm::div(phi*fvc::interpolate(cp), T)
-      + hs*exp(-pow((T-Tmelt)/Tdim,2))/Foam::sqrt(mathematicalConstant::pi)/Tdim*fvm::ddt(T)
-      + hs*exp(-pow((T-Tmelt)/Tdim,2))/Foam::sqrt(mathematicalConstant::pi)/Tdim*(U & fvc::grad(T))
+      + hs*exp(-pow((T-Tmelt)/Tdim,2))/Foam::sqrt(mathematical::pi)/Tdim*fvm::ddt(T)
+      + hs*exp(-pow((T-Tmelt)/Tdim,2))/Foam::sqrt(mathematical::pi)/Tdim*(U & fvc::grad(T))
       - fvm::laplacian(lambda/rho, T)
     );
 
     hEqn.relax();
-    hEqn.solve(mesh.solver(T.select(finalIter)));
+    hEqn.solve();
 
     alpha = 0.5*Foam::erf((T-Tmelt)/Tdim)+scalar(0.5);
 

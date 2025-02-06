@@ -41,6 +41,10 @@ Description
 
 #include "fvCFD.H"
 #include "mathematicalConstants.H"
+#include "pimpleControl.H"
+#include "fvOptions.H"
+
+using namespace Foam::constant;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,10 +53,11 @@ int main(int argc, char *argv[])
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
+    #include "createControl.H"
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "initContinuityErrs.H"
-    #include "readTimeControls.H"
+    #include "createTimeControls.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
@@ -60,30 +65,25 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    while (runTime.loop())
+    while (runTime.run())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         #include "readTimeControls.H"
-        #include "readPIMPLEControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
 
-        // --- Pressure-velocity PIMPLE corrector loop
-        for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
-        {
-            bool finalIter = oCorr == nOuterCorr-1;
+        runTime++;
 
-            if (nOuterCorr != 1)
-            {
-                p_rgh.storePrevIter();
-            }
+        // --- Pressure-velocity PIMPLE corrector loop
+        while (pimple.loop())
+        {
 
             #include "UEqn.H"
             #include "hEqn.H"
 
             // --- PISO loop
-            for (int corr=0; corr<nCorr; corr++)
+            while (pimple.correct())
             {
                 #include "pEqn.H"
             }

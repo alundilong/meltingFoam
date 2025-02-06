@@ -1,50 +1,43 @@
 {
-    volScalarField rUA("rUA", 1.0/UEqn.A());
-    surfaceScalarField rUAf("(1|A(U))", fvc::interpolate(rUA));
+    volScalarField rAU("rAU", 1.0/UEqn.A());
+    surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
+    volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p_rgh));
 
-    U = rUA*UEqn.H();
+    surfaceScalarField phig(-rAUf*ghf*fvc::snGrad(rhok)*mesh.magSf());
 
-    phi = (fvc::interpolate(U) & mesh.Sf())
-        + fvc::ddtPhiCorr(rUA, U, phi);
+    surfaceScalarField phiHbyA
+    (
+        "phiHbyA",
+        fvc::flux(HbyA)
+      + phig
+    );
 
-    surfaceScalarField buoyancyPhi = rUAf*ghf*fvc::snGrad(rhok)*mesh.magSf();
-    phi -= buoyancyPhi;
 
-    for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
+    // Update the pressure BCs to ensure flux consistency
+    constrainPressure(p_rgh, U, phiHbyA, rAUf);
+
+    while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
         (
-            fvm::laplacian(rUAf, p_rgh) == fvc::div(phi)
+            fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
 
-        p_rghEqn.solve
-        (
-            mesh.solver
-            (
-                p_rgh.select
-                (
-                    (
-                        finalIter
-                     && corr == nCorr-1
-                     && nonOrth == nNonOrthCorr
-                    )
-                )
-            )
-        );
+        p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
 
-        if (nonOrth == nNonOrthCorr)
+        if (pimple.finalNonOrthogonalIter())
         {
             // Calculate the conservative fluxes
-            phi -= p_rghEqn.flux();
+            phi = phiHbyA - p_rghEqn.flux();
 
             // Explicitly relax pressure for momentum corrector
             p_rgh.relax();
 
             // Correct the momentum source with the pressure gradient flux
             // calculated from the relaxed pressure
-            U -= rUA*fvc::reconstruct((buoyancyPhi + p_rghEqn.flux())/rUAf);
+            U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
             U.correctBoundaryConditions();
         }
     }
