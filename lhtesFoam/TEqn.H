@@ -1,4 +1,7 @@
-for (label i = 0; i < TIter; i++)
+scalar error = GREAT;
+
+label i = 0;
+while (error > Ttolerance && i < TIter)
 {
     #include "sources.H"
 
@@ -23,13 +26,19 @@ for (label i = 0; i < TIter; i++)
 
     TEqn.solve();
 
-    Info << "TIter = " << i <<" max T = " << gMax(T) << tab << "min T = " << gMin(T) << nl;
-
     rhok = mask*(1.0 - beta*(T - TRef))*rhoL + (1-mask)*rhoS;
 
     volScalarField h = cp*T;
 
     volScalarField Tstar = (Tl - Ts)*lf + Ts;
 
-    DHnew = mask*(DH + glRelax*(h - (cp*Tstar)));
+    // when (h - (cp*Tstar) < epsilon, DHnew == DH
+    // the temperature converged
+
+    volScalarField diff = h - (cp*Tstar);
+    volScalarField absDiff = mag(diff)*mask;
+    error = gMax(absDiff);
+    DHnew = mask*(DH + glRelax*diff);
+    i++;
 }
+Info << "TIter = " << i <<" max T = " << gMax(T) << tab << "min T = " << gMin(T) << tab <<" err: "<< error<< nl;

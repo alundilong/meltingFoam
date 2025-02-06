@@ -122,3 +122,4 @@ dimensionedScalar glRelax
 );
 
 label TIter(materialProperties.lookupOrDefault("TIter",10));
+scalar Ttolerance(materialProperties.lookupOrDefault("tolerance",1e-2));
