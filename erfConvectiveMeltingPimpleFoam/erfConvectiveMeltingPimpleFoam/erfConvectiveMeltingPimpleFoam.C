@@ -43,6 +43,7 @@ Description
 #include "mathematicalConstants.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
+#include "CSVReader.H"
 
 using namespace Foam::constant;
 
@@ -88,6 +89,8 @@ int main(int argc, char *argv[])
                 #include "pEqn.H"
             }
         }
+
+        Info << " max T = " << gMax(T) << tab << "min T = " << gMin(T) << nl;
 
         runTime.write();
 
